@@ -92,7 +92,8 @@ class Guard(object):
         # Send the 'Start' message to the Telegram, if it was configured well
         if self.bot_id != '' and self.chat_id != 0:
             try:
-                requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Minter-Guard has been started".format(self.bot_id, self.chat_id))
+                requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Minter-Guard has started monitoring {} for {} missed blocks."
+				    .format(self.bot_id, self.chat_id, self.pub_key, self.missed_blocks))
             except Exception as ex:
                 logger.error('Failed sending message to Telegram! Please fix and restart the service. No more attempts to send will be made.')
                 logger.error('{}: {}'.format(e.__class__.__name__, e.__str__()))
@@ -156,7 +157,7 @@ class Guard(object):
                     # Send the 'EMERGENCY' message to the Telegram, if it was configured well
                     if self.bot_id != '' and self.chat_id != 0:
 						try:
-							requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=EMERGENCY!!! Your Validator has been turned OFF !!! {} blocks missed.".format(self.bot_id, self.chat_id, mb))
+							requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=EMERGENCY!!! Your Validator ({}) has been turned OFF !!! {} blocks missed.".format(self.bot_id, self.chat_id, self.pub_key, mb))
                         except Exception as ex:
                             logger.error('Failed sending message to Telegram! Please fix and restart the service. No more attempts to send will be made.')
                             logger.error('{}: {}'.format(e.__class__.__name__, e.__str__()))
