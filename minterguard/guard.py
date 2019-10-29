@@ -91,7 +91,13 @@ class Guard(object):
 
         # Send the 'Start' message to the Telegram, if it was configured well
         if self.bot_id != '' and self.chat_id != 0:
-            requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Minter-Guard has been started".format(self.bot_id, self.chat_id))
+            try:
+                requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Minter-Guard has been started".format(self.bot_id, self.chat_id))
+            except Exception as ex:
+                logger.error('Failed sending message to Telegram! Please fix and restart the service. No more attempts to send will be made.')
+                logger.error('{}: {}'.format(e.__class__.__name__, e.__str__()))
+                self.bot_id = ''
+                self.chat_id = ''
 
         while True:
             try:
@@ -144,12 +150,18 @@ class Guard(object):
                     if response.get('error'):
                         raise Exception(response['error'])
 
-                    # Write log info message abount setting candidate off
+                    # Write log info message about setting candidate off
                     logger.warning('Set candidate off. Blocks missed: {}'.format(mb))
 
                     # Send the 'EMERGENCY' message to the Telegram, if it was configured well
                     if self.bot_id != '' and self.chat_id != 0:
-                        requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=EMERGENCY!!! Your Validator has been turned OFF !!! {} blocks missed.".format(self.bot_id, self.chat_id, mb))
+						try:
+							requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=EMERGENCY!!! Your Validator has been turned OFF !!! {} blocks missed.".format(self.bot_id, self.chat_id, mb))
+                        except Exception as ex:
+                            logger.error('Failed sending message to Telegram! Please fix and restart the service. No more attempts to send will be made.')
+                            logger.error('{}: {}'.format(e.__class__.__name__, e.__str__()))
+                            self.bot_id = ''
+                            self.chat_id = ''
 
             except Exception as e:
                 logger.error('{}: {}'.format(
